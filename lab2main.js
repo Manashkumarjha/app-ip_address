@@ -4,6 +4,14 @@
   The ip-cidr package exports a class.
   Assign the class definition to variable IPCIDR.
 */
+const path = require('path');
+ 
+/**
+ * Import helper function module located in the same directory
+ * as this module. IAP requires the path object's join method
+ * to unequivocally locate the file module.
+ */
+const { getIpv4MappedIpv6Address } = require(path.join(__dirname, 'ipv6.js'));
 const IPCIDR = require('ip-cidr');
 
 /**
@@ -16,9 +24,14 @@ const IPCIDR = require('ip-cidr');
 function getFirstIpAddress(cidrStr, callback) {
 
   // Initialize return arguments for callback
-  let firstIpAddress = null;
-  let callbackError = null;
-
+let firstIpAddress = null;
+let callbackError = null;
+let ipv6Address = null;
+let callbackData = null;
+//let abc=null;
+//let def=null;
+//var abc=ipv4;
+//var def=ipv6;
   // Instantiate an object from the imported class and assign the instance to variable cidr.
   const cidr = new IPCIDR(cidrStr);
   // Initialize options for the toArray() method.
@@ -36,13 +49,30 @@ function getFirstIpAddress(cidrStr, callback) {
   } else {
     // If the passed CIDR is valid, call the object's toArray() method.
     // Notice the destructering assignment syntax to get the value of the first array's element.
+    
     [firstIpAddress] = cidr.toArray(options);
+    ipv6Address = getIpv4MappedIpv6Address(firstIpAddress);
   }
+ 
+ callbackData = "{" + JSON.stringify("ipv4") + ":" + JSON.stringify(firstIpAddress) + "," + JSON.stringify("ipv6")+":" + JSON.stringify(ipv6Address) + "}";
+//var xyz=JSON.parse(callbackData);
+var obj=JSON.stringify(callbackData);
+console.log(obj);
+//var obj=JSON.parse(callbackData);
+ // callbackData = "{" + JSON.stringify(abc)+":" + JSON.stringify(firstIpAddress) + "," + JSON.stringify(def)+":" + JSON.stringify(ipv6Address) + "}";
+ // abc=JSON.stringify(firstIpAddress);
+  //def=JSON.stringify(ipv6Address);
+//var data={
+  //  "ipv4": abc,
+    // "ipv6": def
+      // };
+ //console.log(JSON.stringify(ipv6Address));
+//console.log(data);
   // Call the passed callback function.
   // Node.js convention is to pass error data as the first argument to a callback.
   // The IAP convention is to pass returned data as the first argument and error
   // data as the second argument to the callback function.
-  return callback(firstIpAddress, callbackError);
+  return callback(JSON.parse(obj), callbackError);
 }
 
 
